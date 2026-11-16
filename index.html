@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#0f5132">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Badminton">
+<title>Badminton Auslosung</title>
+<style>
+:root{
+  --bg:#f4f7f5; --card:#fff; --ink:#14231b; --muted:#5d6d64; --line:#dde5e0;
+  --green:#0f5132; --green2:#1d7a4c; --accent:#e8b923; --red:#c0392b; --orange:#d9822b;
+  --a:#1d6fb8; --b:#c2410c;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#0f1512; --card:#18211c; --ink:#e7efe9; --muted:#9db0a5; --line:#2a3830;
+    --green:#2f9e66; --green2:#3fb97b; --a:#5aa7ee; --b:#f08a4b; }
+}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--ink);-webkit-tap-highlight-color:transparent}
+header{background:var(--green);color:#fff;padding:14px 16px 0;position:sticky;top:0;z-index:5}
+header h1{margin:0 0 10px;font-size:19px;display:flex;align-items:center;gap:8px}
+nav{display:flex}
+nav button{flex:1;background:none;border:0;color:#cfe5d9;font-size:15px;font-weight:600;padding:10px 4px 12px;border-bottom:3px solid transparent}
+nav button.on{color:#fff;border-bottom-color:var(--accent)}
+main{padding:14px;max-width:640px;margin:0 auto 80px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+h2{font-size:15px;margin:0 0 10px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+input[type=text],input[type=number]{width:100%;font-size:16px;padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink)}
+.row{display:flex;gap:8px;align-items:center}
+.btn{border:0;border-radius:10px;padding:12px 14px;font-size:15px;font-weight:600;background:var(--green2);color:#fff}
+.btn.sec{background:var(--bg);color:var(--ink);border:1px solid var(--line)}
+.btn.warn{background:var(--red)}
+.btn.block{width:100%}
+.btn:disabled{opacity:.45}
+.skills{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin-top:10px}
+.skills button{padding:9px 0;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-weight:600;font-size:14px}
+.skills button.on{background:var(--green2);color:#fff;border-color:var(--green2)}
+.hint{font-size:12.5px;color:var(--muted);margin-top:6px}
+.player{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.player:last-child{border-bottom:0}
+.player .name{flex:1;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.player.off .name{color:var(--muted);text-decoration:line-through}
+.chk{width:26px;height:26px;border-radius:7px;border:2px solid var(--green2);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;flex:none}
+.chk.on{background:var(--green2)}
+.step{display:flex;align-items:center;gap:2px}
+.step button{width:32px;height:32px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:18px;line-height:1}
+.step span{width:28px;text-align:center;font-weight:700}
+.del{border:0;background:none;color:var(--muted);font-size:20px;width:32px;height:32px}
+.del.arm{color:#fff;background:var(--red);border-radius:8px;font-size:12px;width:auto;padding:0 8px}
+.opt{display:flex;gap:10px;align-items:flex-start;padding:11px;border:1px solid var(--line);border-radius:10px;margin-bottom:7px;background:var(--bg)}
+.opt.on{border-color:var(--green2);box-shadow:0 0 0 2px var(--green2) inset}
+.opt .dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--green2);flex:none;margin-top:2px}
+.opt.on .dot{background:radial-gradient(var(--green2) 45%,transparent 50%)}
+.opt b{display:block}
+.opt small{color:var(--muted)}
+.toggle{display:flex;justify-content:space-between;align-items:center;padding:8px 0;gap:10px}
+.sw{width:50px;height:30px;border-radius:15px;background:var(--line);position:relative;flex:none;border:0}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.15s}
+.sw.on{background:var(--green2)}
+.sw.on::after{left:23px}
+.court{border-radius:14px;overflow:hidden;border:1px solid var(--line);margin-bottom:12px;background:var(--card)}
+.court .top{background:var(--green);color:#fff;padding:8px 12px;display:flex;justify-content:space-between;font-weight:700;font-size:14px}
+.court .body{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:12px;gap:8px}
+.team{display:flex;flex-direction:column;gap:4px}
+.team.b{text-align:right}
+.team .p{font-weight:700;font-size:16px}
+.team .p em{font-style:normal;font-weight:500;color:var(--muted);font-size:13px}
+.team .s{font-size:12px;color:var(--muted)}
+.team.a .p{color:var(--a)} .team.b .p{color:var(--b)}
+.vs{font-weight:900;color:var(--muted)}
+.badge{font-size:12px;padding:2px 8px;border-radius:20px;background:#ffffff33}
+.sitout{background:var(--card);border:1px dashed var(--muted);border-radius:12px;padding:10px 12px;margin-bottom:12px}
+.empty{color:var(--muted);text-align:center;padding:20px 8px}
+.hist{font-size:14px;border-bottom:1px solid var(--line);padding:9px 0}
+.hist:last-child{border-bottom:0}
+.stats td,.stats th{padding:6px 4px;text-align:left;font-size:14px;border-bottom:1px solid var(--line)}
+.stats{width:100%;border-collapse:collapse}
+.stats th{color:var(--muted);font-weight:600;font-size:12px}
+.count{background:var(--accent);color:#14231b;border-radius:10px;padding:1px 8px;font-size:13px;margin-left:4px}
+.hidden{display:none}
+</style>
+</head>
+<body>
+<header>
+  <h1>🏸 Badminton Auslosung</h1>
+  <nav>
+    <button data-tab="players" class="on">Spieler</button>
+    <button data-tab="round">Runde</button>
+    <button data-tab="history">Verlauf</button>
+  </nav>
+</header>
+
+<main>
+  <!-- SPIELER -->
+  <section id="tab-players">
+    <div class="card">
+      <h2>Spieler hinzufügen</h2>
+      <form id="addForm" class="row">
+        <input type="text" id="newName" placeholder="Name" autocomplete="off">
+        <button class="btn" type="submit">+</button>
+      </form>
+      <div class="skills" id="newSkill"></div>
+      <div class="hint">Skill-Level: 1 = Anfänger · 5 = Hobby/Verein · 10 = sehr stark</div>
+    </div>
+    <div class="card">
+      <h2>Spieler <span class="count" id="presentCount">0</span></h2>
+      <div class="hint" style="margin:-4px 0 6px">Haken = heute dabei. Skill mit − / + anpassen.</div>
+      <div id="playerList"></div>
+    </div>
+  </section>
+
+  <!-- RUNDE -->
+  <section id="tab-round" class="hidden">
+    <div class="card">
+      <h2>Einstellungen</h2>
+      <div class="toggle">
+        <div><b>Anzahl Plätze/Felder</b><div class="hint" style="margin:0">Wie viele Spiele gleichzeitig</div></div>
+        <div class="step"><button id="cMinus">−</button><span id="courts">3</span><button id="cPlus">+</button></div>
+      </div>
+      <div class="toggle">
+        <div><b>2 gegen 1 erlauben</b><div class="hint" style="margin:0">Zwei Spieler gegen einen stärkeren</div></div>
+        <button class="sw" id="sw21"></button>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Aufteilung wählen</h2>
+      <div id="options"></div>
+    </div>
+    <button class="btn block" id="drawBtn">🎲 Auslosen</button>
+    <div id="result" style="margin-top:14px"></div>
+  </section>
+
+  <!-- VERLAUF -->
+  <section id="tab-history" class="hidden">
+    <div class="card">
+      <h2>Statistik heute</h2>
+      <div id="stats"></div>
+    </div>
+    <div class="card">
+      <h2>Gespielte Runden</h2>
+      <div id="historyList"></div>
+    </div>
+    <button class="btn warn block" id="resetBtn">Verlauf zurücksetzen</button>
+  </section>
+</main>
+
+<script>
+// ---------- Speicher ----------
+const KEY = "badminton-auslosung-v1";
+let state = { players: [], courts: 3, allow21: true, optKey: null, history: [], nextId: 1 };
+try { const s = JSON.parse(localStorage.getItem(KEY)); if (s && s.players) state = Object.assign(state, s); } catch (e) {}
+function save(){ try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {} }
+
+let newSkill = 5;
+let draft = null;      // aktuelle Auslosung (noch nicht übernommen)
+let armedDelete = null;
+let armedReset = false;
+
+const $ = id => document.getElementById(id);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const present = () => state.players.filter(p => p.on);
+const byId = id => state.players.find(p => p.id === id);
+
+// ---------- Tabs ----------
+document.querySelectorAll("nav button").forEach(b => b.onclick = () => {
+  document.querySelectorAll("nav button").forEach(x => x.classList.toggle("on", x === b));
+  ["players","round","history"].forEach(t => $("tab-"+t).classList.toggle("hidden", t !== b.dataset.tab));
+  render();
+});
+
+// ---------- Spieler ----------
+function renderSkillPicker(){
+  $("newSkill").innerHTML = Array.from({length:10},(_,i)=>`<button type="button" class="${i+1===newSkill?'on':''}" data-s="${i+1}">${i+1}</button>`).join("");
+  $("newSkill").querySelectorAll("button").forEach(b => b.onclick = () => { newSkill = +b.dataset.s; renderSkillPicker(); });
+}
+$("addForm").onsubmit = e => {
+  e.preventDefault();
+  const name = $("newName").value.trim();
+  if (!name) return;
+  state.players.push({ id: state.nextId++, name, skill: newSkill, on: true });
+  $("newName").value = ""; $("newName").focus();
+  save(); render();
+};
+function renderPlayers(){
+  $("presentCount").textContent = present().length;
+  if (!state.players.length){ $("playerList").innerHTML = `<div class="empty">Noch keine Spieler. Oben Namen eingeben, Skill wählen, „+“ tippen.</div>`; return; }
+  const list = [...state.players].sort((a,b)=> (b.on-a.on) || a.name.localeCompare(b.name,'de'));
+  $("playerList").innerHTML = list.map(p => `
+    <div class="player ${p.on?'':'off'}">
+      <div class="chk ${p.on?'on':''}" data-t="${p.id}">${p.on?'✓':''}</div>
+      <div class="name">${esc(p.name)}</div>
+      <div class="step"><button data-m="${p.id}">−</button><span>${p.skill}</span><button data-p="${p.id}">+</button></div>
+      <button class="del ${armedDelete===p.id?'arm':''}" data-d="${p.id}">${armedDelete===p.id?'Löschen?':'×'}</button>
+    </div>`).join("");
+  const L = $("playerList");
+  L.querySelectorAll("[data-t]").forEach(b => b.onclick = () => { const p = byId(+b.dataset.t); p.on = !p.on; draft=null; save(); render(); });
+  L.querySelectorAll("[data-m]").forEach(b => b.onclick = () => { const p = byId(+b.dataset.m); p.skill = Math.max(1,p.skill-1); save(); render(); });
+  L.querySelectorAll("[data-p]").forEach(b => b.onclick = () => { const p = byId(+b.dataset.p); p.skill = Math.min(10,p.skill+1); save(); render(); });
+  L.querySelectorAll("[data-d]").forEach(b => b.onclick = () => {
+    const id = +b.dataset.d;
+    if (armedDelete === id){ state.players = state.players.filter(p=>p.id!==id); armedDelete=null; draft=null; save(); }
+    else { armedDelete = id; setTimeout(()=>{ if(armedDelete===id){ armedDelete=null; render(); } }, 3000); }
+    render();
+  });
+}
+
+// ---------- Aufteilungsoptionen ----------
+// d = Doppel (2v2), t = 2-gegen-1, s = Einzel (1v1), r = setzen aus
+function computeOptions(n, courts, allow21){
+  const out = [];
+  for (let d=0; d*4<=n; d++)
+    for (let t=0; t<=(allow21?1:0); t++)
+      for (let s=0; d*4+t*3+s*2<=n; s++){
+        const games = d+t+s; if (!games || games>courts) continue;
+        const r = n - d*4 - t*3 - s*2;
+        // nur "volle" Varianten: kein weiteres Spiel passt mehr rein
+        if (games < courts && r >= 2) continue;
+        out.push({d,t,s,r,key:`${d}-${t}-${s}`});
+      }
+  out.sort((a,b)=> a.r-b.r || b.d-a.d || a.t-b.t || a.s-b.s);
+  return out;
+}
+function optLabel(o){
+  const parts=[];
+  if(o.d) parts.push(`${o.d}× Doppel`);
+  if(o.t) parts.push(`${o.t}× 2 gegen 1`);
+  if(o.s) parts.push(`${o.s}× Einzel`);
+  return parts.join(" · ");
+}
+function renderOptions(){
+  const n = present().length;
+  $("courts").textContent = state.courts;
+  $("sw21").classList.toggle("on", state.allow21);
+  if (n < 2){ $("options").innerHTML = `<div class="empty">Mindestens 2 anwesende Spieler nötig.</div>`; $("drawBtn").disabled = true; return; }
+  const opts = computeOptions(n, state.courts, state.allow21);
+  const sig = n+"/"+state.courts+"/"+state.allow21;
+  if (state.optSig !== sig || !opts.find(o=>o.key===state.optKey)){ state.optKey = opts.length ? opts[0].key : null; state.optSig = sig; }
+  $("drawBtn").disabled = !opts.length;
+  $("options").innerHTML = `<div class="hint" style="margin:-4px 0 8px">${n} Spieler anwesend</div>` + opts.map(o => `
+    <div class="opt ${o.key===state.optKey?'on':''}" data-k="${o.key}">
+      <div class="dot"></div>
+      <div><b>${optLabel(o)}</b><small>${o.r ? `${o.r} ${o.r===1?'setzt':'setzen'} aus` : 'alle spielen'} · ${o.d+o.t+o.s} ${o.d+o.t+o.s===1?'Platz':'Plätze'}</small></div>
+    </div>`).join("");
+  $("options").querySelectorAll(".opt").forEach(el => el.onclick = () => { state.optKey = el.dataset.k; draft=null; save(); render(); });
+}
+$("cMinus").onclick = () => { state.courts = Math.max(1, state.courts-1); draft=null; save(); render(); };
+$("cPlus").onclick  = () => { state.courts = Math.min(20, state.courts+1); draft=null; save(); render(); };
+$("sw21").onclick   = () => { state.allow21 = !state.allow21; draft=null; save(); render(); };
+
+// ---------- Statistik aus Verlauf ----------
+function stats(){
+  const st = {}; const partners = {};
+  const get = id => st[id] || (st[id] = {played:0, sat:0, solo:0});
+  for (const r of state.history){
+    r.sit.forEach(id => get(id).sat++);
+    for (const m of r.matches){
+      [...m.a, ...m.b].forEach(id => get(id).played++);
+      for (const team of [m.a, m.b]){
+        if (team.length === 1 && m.type !== "single") get(team[0]).solo++;
+        if (team.length === 2){ const k = pairKey(team[0],team[1]); partners[k] = (partners[k]||0)+1; }
+      }
+    }
+  }
+  return {st, partners, get};
+}
+const pairKey = (a,b) => a<b ? a+"-"+b : b+"-"+a;
+
+// ---------- Auslosung ----------
+const BONUS_21 = 2; // Wie viel stärker ein Paar ggü. seinem Durchschnitt zählt (2-gegen-1)
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.random()*(i+1)|0; [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+
+function draw(){
+  const players = present();
+  const opt = computeOptions(players.length, state.courts, state.allow21).find(o=>o.key===state.optKey);
+  if (!opt) return;
+  const {st, partners} = stats();
+  const S = id => st[id] || {played:0,sat:0,solo:0};
+
+  // 1) Wer setzt aus? Wer am seltensten ausgesetzt hat und am meisten gespielt hat, zuerst.
+  const order = shuffle(players.map(p=>p.id)).sort((a,b)=> S(a).sat - S(b).sat || S(b).played - S(a).played);
+  const sit = order.slice(0, opt.r);
+  const playing = players.filter(p => !sit.includes(p.id));
+
+  // 2) Spielplätze (Slots) aufbauen
+  const matches = [];
+  for (let i=0;i<opt.d;i++) matches.push({type:"double", sizes:[2,2]});
+  for (let i=0;i<opt.t;i++) matches.push({type:"21",     sizes:[2,1]});
+  for (let i=0;i<opt.s;i++) matches.push({type:"single", sizes:[1,1]});
+  const slots = []; // slot -> [matchIdx, team]
+  matches.forEach((m,mi)=> m.sizes.forEach((sz,ti)=>{ for(let k=0;k<sz;k++) slots.push([mi,ti]); }));
+
+  const skill = playing.map(p=>p.skill), ids = playing.map(p=>p.id);
+
+  function matchCost(perm, mi){
+    const m = matches[mi]; const A=[],B=[];
+    slots.forEach((s,i)=>{ if(s[0]===mi) (s[1]===0?A:B).push(perm[i]); });
+    let c;
+    if (m.type === "double"){
+      const d = (skill[A[0]]+skill[A[1]] - skill[B[0]]-skill[B[1]])/2; c = d*d;
+    } else if (m.type === "single"){
+      const d = skill[A[0]]-skill[B[0]]; c = d*d;
+    } else {
+      const pair = (skill[A[0]]+skill[A[1]])/2 + BONUS_21; const d = pair - skill[B[0]]; c = d*d;
+      c += 0.8 * S(ids[B[0]]).solo; // Rolle "allein gegen zwei" fair verteilen
+    }
+    for (const T of [A,B]) if (T.length===2) c += 1.5 * (partners[pairKey(ids[T[0]],ids[T[1]])]||0); // gleiche Partner vermeiden
+    return c;
+  }
+  const totalCost = perm => matches.reduce((s,_,mi)=>s+matchCost(perm,mi),0);
+
+  // 3) Viele Zufallsstarts + lokale Verbesserung durch Tauschen
+  const found = new Map();
+  const restarts = 80;
+  for (let r=0;r<restarts;r++){
+    const perm = shuffle([...Array(playing.length).keys()]);
+    let cost = totalCost(perm), improved = true;
+    while (improved){
+      improved = false;
+      for (let i=0;i<perm.length;i++) for (let j=i+1;j<perm.length;j++){
+        if (slots[i][0]===slots[j][0] && slots[i][1]===slots[j][1]) continue;
+        [perm[i],perm[j]]=[perm[j],perm[i]];
+        const c = totalCost(perm);
+        if (c < cost - 1e-9){ cost = c; improved = true; } else [perm[i],perm[j]]=[perm[j],perm[i]];
+      }
+    }
+    const res = matches.map((m,mi)=>{
+      const A=[],B=[]; slots.forEach((s,i)=>{ if(s[0]===mi) (s[1]===0?A:B).push(ids[perm[i]]); });
+      return {type:m.type, a:A, b:B};
+    });
+    const key = res.map(m=>[m.a.slice().sort().join(","), m.b.slice().sort().join(",")].sort().join("|")).sort().join("/");
+    if (!found.has(key)) found.set(key, {cost, res});
+  }
+  const all = [...found.values()].sort((a,b)=>a.cost-b.cost);
+  const best = all[0].cost;
+  const near = all.filter(x => x.cost <= best + 0.6);   // gleich gute Varianten → zufällig eine nehmen
+  const pick = near[Math.random()*near.length|0];
+  // Spiele mit ähnlichem Niveau sortieren (stärkstes Spiel auf Platz 1)
+  pick.res.sort((x,y)=> avg([...y.a,...y.b]) - avg([...x.a,...x.b]));
+  draft = { matches: pick.res, sit, label: optLabel(opt) };
+  render();
+  $("result").scrollIntoView({behavior:"smooth", block:"start"});
+}
+const avg = arr => arr.reduce((s,id)=>s+byId(id).skill,0)/arr.length;
+$("drawBtn").onclick = draw;
+
+function balanceInfo(m){
+  const sA = m.a.map(id=>byId(id).skill), sB = m.b.map(id=>byId(id).skill);
+  let a = sA.reduce((x,y)=>x+y,0)/sA.length, b = sB.reduce((x,y)=>x+y,0)/sB.length;
+  if (m.type==="21"){ a += BONUS_21; }
+  const d = Math.abs(a-b);
+  return d <= 0.5 ? ["Ausgeglichen","#2e9e5b"] : d <= 1.5 ? ["Leicht unterschiedlich","#d9822b"] : ["Unausgeglichen","#c0392b"];
+}
+const typeName = t => t==="double" ? "Doppel" : t==="single" ? "Einzel" : "2 gegen 1";
+
+function renderResult(){
+  if (!draft){ $("result").innerHTML = ""; return; }
+  const teamHtml = (team, cls) => {
+    const sk = team.map(id=>byId(id)?.skill||0);
+    const info = team.length>1 ? `Ø ${(sk.reduce((x,y)=>x+y,0)/sk.length).toFixed(1)}` : "";
+    return `<div class="team ${cls}">${team.map(id=>{ const p=byId(id); return `<div class="p">${esc(p?p.name:'?')} <em>(${p?p.skill:'-'})</em></div>`; }).join("")}<div class="s">${info}</div></div>`;
+  };
+  let h = `<h2>Runde ${state.history.length+1} · ${esc(draft.label)}</h2>`;
+  draft.matches.forEach((m,i)=>{
+    const [txt,col] = balanceInfo(m);
+    h += `<div class="court"><div class="top"><span>Platz ${i+1} · ${typeName(m.type)}</span><span class="badge" style="background:${col}">${txt}</span></div>
+      <div class="body">${teamHtml(m.a,'a')}<div class="vs">vs</div>${teamHtml(m.b,'b')}</div></div>`;
+  });
+  if (draft.sit.length) h += `<div class="sitout">🪑 <b>Setzt aus:</b> ${draft.sit.map(id=>esc(byId(id).name)).join(", ")}</div>`;
+  h += `<div class="row"><button class="btn sec" style="flex:1" id="rerollBtn">🔄 Neu mischen</button><button class="btn" style="flex:1" id="acceptBtn">✓ Runde übernehmen</button></div>
+        <div class="hint">„Übernehmen“ speichert die Runde. Danach berücksichtigt die nächste Auslosung, wer schon ausgesetzt hat und wer schon zusammen gespielt hat.</div>`;
+  $("result").innerHTML = h;
+  $("rerollBtn").onclick = draw;
+  $("acceptBtn").onclick = () => {
+    state.history.push({ time: Date.now(), label: draft.label, matches: draft.matches.map(m=>({type:m.type,a:m.a,b:m.b})), sit: draft.sit,
+      names: Object.fromEntries([...draft.sit, ...draft.matches.flatMap(m=>[...m.a,...m.b])].map(id=>[id, byId(id).name])) });
+    draft = null; save(); render();
+    window.scrollTo({top:0, behavior:"smooth"});
+  };
+}
+
+// ---------- Verlauf ----------
+function renderHistory(){
+  const {st} = stats();
+  const rows = state.players.filter(p=>p.on || st[p.id]).map(p=>({p, s: st[p.id]||{played:0,sat:0,solo:0}}))
+    .sort((a,b)=> b.s.played-a.s.played || a.p.name.localeCompare(b.p.name,'de'));
+  $("stats").innerHTML = rows.length ? `<table class="stats"><tr><th>Name</th><th>Spiele</th><th>Ausgesetzt</th><th>Allein vs 2</th></tr>${
+    rows.map(r=>`<tr><td>${esc(r.p.name)}</td><td>${r.s.played}</td><td>${r.s.sat}</td><td>${r.s.solo}</td></tr>`).join("")}</table>` : `<div class="empty">Noch keine Daten.</div>`;
+  const nm = (r,id) => esc(byId(id)?.name || r.names?.[id] || "?");
+  $("historyList").innerHTML = state.history.length ? state.history.map((r,i)=>`
+    <div class="hist"><b>Runde ${i+1}</b> · ${esc(r.label)}<br>${r.matches.map(m=>`${m.a.map(id=>nm(r,id)).join(" & ")} <span style="color:var(--muted)">vs</span> ${m.b.map(id=>nm(r,id)).join(" & ")}`).join("<br>")}
+    ${r.sit.length?`<br><span style="color:var(--muted)">Aus: ${r.sit.map(id=>nm(r,id)).join(", ")}</span>`:""}</div>`).reverse().join("")
+    : `<div class="empty">Noch keine Runde übernommen.</div>`;
+  $("resetBtn").textContent = armedReset ? "Wirklich alles zurücksetzen?" : "Verlauf zurücksetzen";
+}
+$("resetBtn").onclick = () => {
+  if (armedReset){ state.history = []; armedReset=false; draft=null; save(); }
+  else { armedReset = true; setTimeout(()=>{ armedReset=false; render(); }, 3000); }
+  render();
+};
+
+function render(){ renderSkillPicker(); renderPlayers(); renderOptions(); renderResult(); renderHistory(); }
+render();
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(()=>{});
+</script>
+</body>
+</html>
